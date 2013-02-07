@@ -9,27 +9,28 @@ html, body {
 	font: 12px DejaVu Sans, Helvetica, Arial, Segoe UI, Droid Sans, sans-serif;
 }
 
+#main {
+	width: auto;
+}
+
 #header {
 	padding: 1px;
-	width: inherit;
+	width: 100%;
 	text-align: center;
 	background: -webkit-linear-gradient(bottom, #000, #AAA);
 	background: -moz-linear-gradient( center bottom, rgb(0,0,0) 1%, rgb(128,128,128) 99%);
 	color: #fff;
 }
 
-#main {
-	width: auto;
-}
-
 #content {
+	width: 100%;
 	text-align: center;
 }
 
 .result {
 	display: inline-block;
 	max-width: 400px;
-	width: 75%;
+	width: 80%;
 	margin: 3px;
 	padding: 2px;
 	border: solid 1px #777;

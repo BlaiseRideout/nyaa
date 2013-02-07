@@ -23,9 +23,18 @@ define("port", default=5000, help="run on the given port", type=int)
 
 # the main page
 class MainHandler(tornado.web.RequestHandler):
+	def get(self):
+		get(self, None)
+
 	def get(self, q):
 
-		linkopen = urllib.urlopen("http://www.nyaa.eu/?page=rss")
+		link = "http://www.nyaa.eu/?page=rss"
+
+		if q != None:
+			link += "&term=" + q
+
+		linkopen = urllib.urlopen(link)
+
 
 		if linkopen != None:
 			if str(linkopen.headers).find('charset') != -1:
@@ -76,7 +85,8 @@ class MainHandler(tornado.web.RequestHandler):
 class Application(tornado.web.Application):
 	def __init__(self):
 		handlers = [
-			(r"/(?:search/(term))?", MainHandler)
+			(r"/", MainHandler),
+			(r"/search/(.*)", MainHandler)
 		]
 		settings = dict(
 			template_path=os.path.join(os.path.dirname(__file__), "templates"),

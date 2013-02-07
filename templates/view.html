@@ -34,13 +34,9 @@
 			<div id="header">
 				<h1>{{ page_heading }}</h1>
 			</div>
-			<div id="content">
-				{% for result in results %}
-					<div class="result">
-						<div class="center"><a href="/view/{{ result['id'] }}">{{ result['title'] }}</a></div>
-						{{ result['description'] }}
-					</div>
-				{% end %}
+			<div id="info">
+				{{ result['title'] }}</div>
+				{{ result['description'] }}
 			</div>
 		</div><!-- end main -->
 

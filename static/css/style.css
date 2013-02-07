@@ -1,0 +1,41 @@
+html, body {
+	margin:0;
+	padding:0;
+	border:0;
+	outline:0;
+	font-size:100%;
+	vertical-align:baseline;
+	background:transparent;
+	font: 12px DejaVu Sans, Helvetica, Arial, Segoe UI, Droid Sans, sans-serif;
+}
+
+#header {
+	padding: 1px;
+	width: inherit;
+	text-align: center;
+	background: -webkit-linear-gradient(bottom, #000, #AAA);
+	background: -moz-linear-gradient( center bottom, rgb(0,0,0) 1%, rgb(128,128,128) 99%);
+	color: #fff;
+}
+
+#main {
+	width: auto;
+}
+
+#content {
+	text-align: center;
+}
+
+.result {
+	display: inline-block;
+	max-width: 400px;
+	width: 75%;
+	margin: 3px;
+	padding: 2px;
+	border: solid 1px #777;
+	border-radius: 5px;
+}
+
+.center {
+	text-align: center;
+}

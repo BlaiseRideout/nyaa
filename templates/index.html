@@ -1,0 +1,43 @@
+<!doctype html>	
+
+<!--[if lt IE 7 ]> <html lang="en" class="no-js ie6"> <![endif]-->
+<!--[if IE 7 ]>		<html lang="en" class="no-js ie7"> <![endif]-->
+<!--[if IE 8 ]>		<html lang="en" class="no-js ie8"> <![endif]-->
+<!--[if (gte IE 9)|!(IE)]><!--> <html lang="en" class="no-js"> <!--<![endif]-->
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<title>{{ title }}</title>
+		<link rel="stylesheet" href="{{ static_url("css/style.css") }}" />
+		<script src="{{ static_url("js/modernizr-1.5.min.js") }}"></script>
+
+		<!-- plugins -->
+		<script src="{{ static_url("js/plugins.js") }}"></script>
+
+		<!-- main script -->
+		<script src="{{ static_url("js/script.js") }}"></script>
+
+		<!-- Load jQuery -->
+		<script src="http://www.google.com/jsapi"></script>
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
+		<script>!window.jQuery && document.write('<script src="{{ static_url("js/jquery-1.6.4.min.js") }}"><\/script>')</script>
+
+	</head>
+	<body>
+
+		<div id="main">
+			<div id="header">
+				<h1>{{ page_heading }}</h1>
+			</div>
+			<div id="content">
+				{% for result in results %}
+					<div class="result">
+						<div class="center"><a href="/view/{{ result['id'] }}">{{ result['title'] }}</a></div>
+						{{ result['description'] }}
+					</div>
+				{% end %}
+			</div>
+		</div><!-- end main -->
+
+	</body>
+</html>

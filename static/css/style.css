@@ -22,7 +22,11 @@ h1 {
 	text-align: center;
 	background: -webkit-linear-gradient(bottom, #000, #AAA);
 	background: -moz-linear-gradient( center bottom, rgb(0,0,0) 1%, rgb(128,128,128) 99%);
-	color: #fff;
+}
+
+#title {
+	text-decoration: none;
+	color: #ddd;
 }
 
 #content {

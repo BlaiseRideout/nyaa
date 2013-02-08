@@ -21,72 +21,75 @@ from xml.dom.minidom import parseString
 from tornado.options import define, options
 define("port", default=5000, help="run on the given port", type=int)
 
-# the main page
+def search(self, q):
+	link = "http://www.nyaa.eu/?page=rss"
+
+	if q != None:
+		link += "&term=" + q
+
+	linkopen = urllib.urlopen(link)
+
+	if linkopen != None:
+		if str(linkopen.headers).find('charset') != -1:
+			charset = re.search("^Content-Type: text/xml; charset=(?P<charset>.*?)\r\n",str(linkopen.headers))
+			if charset != None:
+				charset = charset.group('charset')
+		if charset == None:
+			charset = 'utf-8'
+
+		xml = parseString(linkopen.read().decode(charset).encode('utf-8')).getElementsByTagName('channel')[0]
+
+		page_heading = title = xml.getElementsByTagName('title')[0].firstChild.nodeValue
+
+		content = '<h3>Results:</h3>'
+
+		results = []
+
+		for item in xml.getElementsByTagName('item'):
+			ititle = item.getElementsByTagName('title')[0].firstChild.nodeValue
+			if ititle == None:
+				break
+
+			id = re.search("http://www\.nyaa\.eu/\?page=download&tid=(?P<id>\d*)", item.getElementsByTagName('link')[0].firstChild.nodeValue)
+			if id != None:
+				id = id.group('id')
+			else:
+				break
+
+			description = item.getElementsByTagName('description')[0].firstChild.nodeValue
+
+			result = {"title": ititle,
+			          "id": id,
+			          "description": description }
+			results.append(result)
+
+	else:
+		page_heading = title = "Error"
+
+	self.render(
+		"index.html",
+		title = title,
+		page_heading = page_heading,
+		results = results
+	)
+
+			
+#the main page
 class MainHandler(tornado.web.RequestHandler):
 	def get(self):
-		get(self, None)
+		search(self, None)
 
+# the search page
+class SearchHandler(tornado.web.RequestHandler):
 	def get(self, q):
-
-		link = "http://www.nyaa.eu/?page=rss"
-
-		if q != None:
-			link += "&term=" + q
-
-		linkopen = urllib.urlopen(link)
-
-
-		if linkopen != None:
-			if str(linkopen.headers).find('charset') != -1:
-				charset = re.search("^Content-Type: text/xml; charset=(?P<charset>.*?)\r\n",str(linkopen.headers))
-				if charset != None:
-					charset = charset.group('charset')
-			if charset == None:
-				charset = 'utf-8'
-
-			xml = parseString(linkopen.read().decode(charset).encode('utf-8')).getElementsByTagName('channel')[0]
-
-			page_heading = title = xml.getElementsByTagName('title')[0].firstChild.nodeValue
-
-			content = '<h3>Results:</h3>'
-
-			results = []
-
-			for item in xml.getElementsByTagName('item'):
-				ititle = item.getElementsByTagName('title')[0].firstChild.nodeValue
-				if ititle == None:
-					break
-
-				id = re.search("http://www\.nyaa\.eu/\?page=download&tid=(?P<id>\d*)", item.getElementsByTagName('link')[0].firstChild.nodeValue)
-				if id != None:
-					id = id.group('id')
-				else:
-					break
-
-				description = item.getElementsByTagName('description')[0].firstChild.nodeValue
-
-				result = {"title": ititle,
-				          "id": id,
-				          "description": description }
-				results.append(result)
-
-		else:
-			page_heading = title = "Error"
-			
-
-		self.render(
-			"index.html",
-			title = title,
-			page_heading = page_heading,
-			results = results
-		)
+		search(self, q)
 
 # application settings and handle mapping info
 class Application(tornado.web.Application):
 	def __init__(self):
 		handlers = [
 			(r"/", MainHandler),
-			(r"/search/(.*)", MainHandler)
+			(r"/search/(.*)", SearchHandler)
 		]
 		settings = dict(
 			template_path=os.path.join(os.path.dirname(__file__), "templates"),

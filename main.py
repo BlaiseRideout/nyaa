@@ -133,9 +133,9 @@ class Application(tornado.web.Application):
 			(r"/search/(.*)", PlainSearchHandler)
 		]
 		settings = dict(
-			template_path=os.path.join(os.path.dirname(__file__), "templates"),
-			static_path=os.path.join(os.path.dirname(__file__), "static"),
-			debug=True,
+			template_path = os.path.join(os.path.dirname(__file__), "templates"),
+			static_path = os.path.join(os.path.dirname(__file__), "static"),
+			debug = False,
 		)
 		tornado.web.Application.__init__(self, handlers, **settings)
 

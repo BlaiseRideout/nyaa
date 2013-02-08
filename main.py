@@ -57,10 +57,21 @@ def search(self, q):
 				break
 
 			description = item.getElementsByTagName('description')[0].firstChild.nodeValue
+			trusted = ""
+			desc = re.search(r'(?P<A> - A\+)? - (?P<trusted>Remake|Trusted)', description)
+			if desc != None:
+				if desc.group('trusted') == "Remake":
+					trusted = "remake"
+				elif desc.group('trusted') == "Trusted":
+					trusted = "trusted"
+					if desc.group('A') != None:
+						trusted = "aplus"
+				description = re.sub(r'/( - A\+) - (Remake|Trusted)', "", description)
 
 			result = {"title": ititle,
 			          "id": id,
-			          "description": description }
+			          "description": description,
+			          "trusted":  trusted}
 			results.append(result)
 
 	else:

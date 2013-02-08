@@ -36,6 +36,19 @@ html, body {
 	border-radius: 5px;
 }
 
+.trusted {
+	background-color: rgb(160, 224, 176);
+}
+
+.remake {
+	background-color: rgb(224, 144, 144);
+}
+
+.aplus {
+	background-color: rgb(144, 176, 240);
+}
+
+
 .center {
 	text-align: center;
 }

@@ -21,7 +21,7 @@ from xml.dom.minidom import parseString
 from tornado.options import define, options
 define("port", default=5000, help="run on the given port", type=int)
 
-def search(self, q):
+def search(self, q, filter, category):
 	link = "http://www.nyaa.eu/?page=rss"
 
 	if q != None:
@@ -29,6 +29,18 @@ def search(self, q):
 		current_search = q
 	else:
 		current_search = ""
+
+	if filter != None:
+		link += "&filter=" + filter
+		current_filter = filter
+	else:
+		current_filter = "0"
+
+	if category != None:
+		link += "&cats=" + category
+		current_category = category
+	else:
+		current_category = "0_0"
 
 	linkopen = urllib.urlopen(link)
 
@@ -92,26 +104,33 @@ def search(self, q):
 		title = title,
 		page_heading = page_heading,
 		results = results,
-		current_search = current_search
+		current_search = current_search,
+		current_filter = current_filter,
+		current_category = current_category
 	)
 
 			
 #the main page
 class MainHandler(tornado.web.RequestHandler):
 	def get(self):
-		search(self, None)
+		search(self, None, None, None)
 
 # the search page
-class SearchHandler(tornado.web.RequestHandler):
+class PlainSearchHandler(tornado.web.RequestHandler):
 	def get(self, q):
-		search(self, q)
+		search(self, q, None, None)
+
+class SearchHandler(tornado.web.RequestHandler):
+	def get(self, filter, category, q):
+		search(self, q, filter, category)
 
 # application settings and handle mapping info
 class Application(tornado.web.Application):
 	def __init__(self):
 		handlers = [
 			(r"/", MainHandler),
-			(r"/search/(.*)", SearchHandler)
+			(r"/(\d)/(\d_\d{1,2})/search/(.*)", SearchHandler),
+			(r"/search/(.*)", PlainSearchHandler)
 		]
 		settings = dict(
 			template_path=os.path.join(os.path.dirname(__file__), "templates"),

@@ -8,12 +8,18 @@
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width = device-width, initial-scale = 1.0, user-scalable=no" />
 		<link media="Screen" href="{{ static_url("css/style.css") }}" type="text/css" rel="stylesheet" />
-		<link media="handheld, only screen and (max-width: 480px), only screen and (max-device-width: 480px)" href="mobile.css" type="text/css" rel="stylesheet" />
+		<link media="handheld, only screen and (max-width: 480px), only screen and (max-device-width: 480px)" href="{{ static_url("css/mobile.css") }}" type="text/css" rel="stylesheet" />
 		<!--[if IEMobile]>
 		<link rel="stylesheet" type="text/css" href="mobile.css" media="screen" />
 		<![endif]-->
 		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
 		<title>{{ title }}</title>
+
+		<!-- Load jQuery -->
+		<script src="http://www.google.com/jsapi"></script>
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
+		<script>!window.jQuery && document.write('<script src="{{ static_url("js/jquery-1.6.4.min.js") }}"><\/script>')</script>
+
 		<script src="{{ static_url("js/modernizr-1.5.min.js") }}"></script>
 
 		<!-- plugins -->
@@ -22,22 +28,18 @@
 		<!-- main script -->
 		<script src="{{ static_url("js/script.js") }}"></script>
 
-		<!-- Load jQuery -->
-		<script src="http://www.google.com/jsapi"></script>
-		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
-		<script>!window.jQuery && document.write('<script src="{{ static_url("js/jquery-1.6.4.min.js") }}"><\/script>')</script>
-
 	</head>
 	<body>
 
 		<div id="main">
 			<div id="header">
 				<h1>{{ page_heading }}</h1>
+				<input type="text" id="search" value="{{ current_search }}"/><button id="searchb">Search</button>
 			</div>
 			<div id="content">
 				{% for result in results %}
 					<div class="result {{ result['trusted'] }}">
-						<div class="center"><a href="/view/{{ result['id'] }}">{{ result['title'] }}</a></div>
+						<div class="center"><a href="{{ result['link'] }}">{{ result['title'] }}</a></div>
 						{{ result['description'] }}
 					</div>
 				{% end %}

@@ -13,8 +13,12 @@ html, body {
 	width: auto;
 }
 
+h1 {
+	margin: 5px;
+}
+
 #header {
-	padding: 1px;
+	padding: 5px;
 	width: 100%;
 	text-align: center;
 	background: -webkit-linear-gradient(bottom, #000, #AAA);
@@ -47,7 +51,6 @@ html, body {
 .aplus {
 	background-color: rgb(144, 176, 240);
 }
-
 
 .center {
 	text-align: center;

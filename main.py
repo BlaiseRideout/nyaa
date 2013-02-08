@@ -26,6 +26,9 @@ def search(self, q):
 
 	if q != None:
 		link += "&term=" + q
+		current_search = q
+	else:
+		current_search = ""
 
 	linkopen = urllib.urlopen(link)
 
@@ -50,10 +53,14 @@ def search(self, q):
 			if ititle == None:
 				break
 
-			id = re.search("http://www\.nyaa\.eu/\?page=download&tid=(?P<id>\d*)", item.getElementsByTagName('link')[0].firstChild.nodeValue)
-			if id != None:
-				id = id.group('id')
-			else:
+#			id = re.search("http://www\.nyaa\.eu/\?page=download&tid=(?P<id>\d*)", item.getElementsByTagName('link')[0].firstChild.nodeValue)
+#			if id != None:
+#				id = id.group('id')
+#			else:
+#				break
+
+			link = item.getElementsByTagName('link')[0].firstChild.nodeValue
+			if link == None:
 				break
 
 			description = item.getElementsByTagName('description')[0].firstChild.nodeValue
@@ -68,10 +75,13 @@ def search(self, q):
 						trusted = "aplus"
 				description = re.sub(r'/( - A\+) - (Remake|Trusted)', "", description)
 
+			if description == None:
+				break
+
 			result = {"title": ititle,
-			          "id": id,
+			          "link": link,
 			          "description": description,
-			          "trusted":  trusted}
+			          "trusted":  trusted }
 			results.append(result)
 
 	else:
@@ -81,7 +91,8 @@ def search(self, q):
 		"index.html",
 		title = title,
 		page_heading = page_heading,
-		results = results
+		results = results,
+		current_search = current_search
 	)
 
 			

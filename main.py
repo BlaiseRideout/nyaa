@@ -85,7 +85,7 @@ def search(self, q, filter, category):
 					trusted = "trusted"
 					if desc.group('A') != None:
 						trusted = "aplus"
-				description = re.sub(r'/( - A\+) - (Remake|Trusted)', "", description)
+				description = re.sub(r'( - A\+) - (Remake|Trusted)', "", description)
 
 			if description == None:
 				break

@@ -3,7 +3,7 @@ google.setOnLoadCallback(function() {
 	$("#searchf").submit(function (event) {
 		event.preventDefault();
 
-		window.location.href = "/" + $("#filter").val() + "/" + $("#category").val() + "/search/" + $("#search").val();
+		window.location.href = "/search/" + $("#filter").val() + "/" + $("#category").val() + "/" + $("#search").val();
 
 		return false;
 	});

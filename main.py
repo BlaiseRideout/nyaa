@@ -129,7 +129,7 @@ class Application(tornado.web.Application):
 	def __init__(self):
 		handlers = [
 			(r"/", MainHandler),
-			(r"/(\d)/(\d_\d{1,2})/search/(.*)", SearchHandler),
+			(r"/search/(\d)/(\d_\d{1,2})/(.*)", SearchHandler),
 			(r"/search/(.*)", PlainSearchHandler)
 		]
 		settings = dict(

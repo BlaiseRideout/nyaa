@@ -4,7 +4,7 @@
 #		11.12.11
 #
 
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import os.path
 import os
 import tornado.escape

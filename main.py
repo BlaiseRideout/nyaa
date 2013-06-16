@@ -12,6 +12,7 @@ import tornado.httpserver
 import tornado.ioloop
 import tornado.options
 import tornado.web
+import tornado.template
 import unicodedata
 import urllib
 import re
@@ -124,13 +125,44 @@ class SearchHandler(tornado.web.RequestHandler):
 	def get(self, filter, category, q):
 		search(self, q, filter, category)
 
+#description for a torrent
+class DescriptionHandler(tornado.web.RequestHandler):
+	def get(self, q):
+		link = "http://www.nyaa.eu/?page=view"
+
+		if q != None:
+			link += "&tid=" + q
+
+		linkopen = urllib.urlopen(link)
+
+		if linkopen != None:
+			if str(linkopen.headers).find('charset') != -1:
+				charset = re.search("^Content-Type: text/xml; charset=(?P<charset>.*?)\r\n",str(linkopen.headers))
+				if charset != None:
+					charset = charset.group('charset')
+				else:
+					charset = 'utf-8'
+			else:
+				charset = 'utf-8'
+
+			#for e in parseString(linkopen.read().decode(charset).encode('utf-8')).getElementsByTagName('div'):
+			#	if e.attributes['class'] == 'viewdescription':
+			#		description = e.firstChild.nodeValue
+
+			description = linkopen.read().decode(charset).encode('utf-8')
+		else:
+			description = "No description"
+
+		self.write(description)
+
 # application settings and handle mapping info
 class Application(tornado.web.Application):
 	def __init__(self):
 		handlers = [
 			(r"/", MainHandler),
 			(r"/search/(\d)/(\d_\d{1,2})/(.*)", SearchHandler),
-			(r"/search/(.*)", PlainSearchHandler)
+			(r"/search/(.*)", PlainSearchHandler),
+			(r"/description/(.*)", DescriptionHandler)
 		]
 		settings = dict(
 			template_path = os.path.join(os.path.dirname(__file__), "templates"),

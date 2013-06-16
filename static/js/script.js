@@ -13,26 +13,24 @@ google.setOnLoadCallback(function() {
     $this = $(this);
     if($this.text() == "▲") {
       $this.text("▼");
-      $(".description").remove();
+      $this.parent().find(".description").slideUp(500, function () {
+        $(this).remove();
+      });
     }
     else {
       $this.text("▲");
 
-
       var nyaaLink = $this.parent().find("a");
-      var nyaaURL = nyaaLink.attr("href").replace('download','view');
+      var nyaaURL = nyaaLink.attr("href").replace('http://www.nyaa.eu/?page=download&tid=','/description/');
       var title = nyaaLink.text();
 
-      $this.parent().append("<div class='description center'><a target='_blank' href='" + nyaaURL + "'>" + title + "</a></div>");
-
-      $.ajax({
-        url: nyaaURL,
-        success: function (data) {
-          console.log(data);
-          var description = $(data).filter("div.viewdescription").text();
-          alert(description);
-          $this.parent().append("<div class='description center'>" + description + "</div>");
+      //$this.parent().append("<div class='description center'><a target='_blank' href='" + nyaaURL + "'>" + title + "</a></div>");
+      $this.parent().append("<div style='display: none;' class='description center'></div>").slideDown("slow");
+      $this.parent().find(".description").load(nyaaURL +  " .viewdescription", function(response, status, xhr) {
+        if (status == "error") {
+          $this.parent().find(".description").text(xhr.status + " " + xhr.statusText);
         }
+        $this.parent().find(".description").slideDown(500);
       });
     }
   });

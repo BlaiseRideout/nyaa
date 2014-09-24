@@ -173,9 +173,16 @@ class Application(tornado.web.Application):
 
 # RAMMING SPEEEEEEED!
 def main():
+	if len(sys.argv) > 1:
+		try:
+			port = int(sys.argv[1])
+		except:
+			port = 5000
+	else:
+		port = 5000
 	tornado.options.parse_command_line()
 	http_server = tornado.httpserver.HTTPServer(Application())
-	http_server.listen(os.environ.get("PORT", 5000))
+	http_server.listen(os.environ.get("PORT", port))
 
 	# start it up
 	tornado.ioloop.IOLoop.instance().start()

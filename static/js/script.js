@@ -21,7 +21,7 @@ google.setOnLoadCallback(function() {
       $this.text("▲");
 
       var nyaaLink = $this.parent().find("a");
-      var nyaaURL = nyaaLink.attr("href").replace('http://www.nyaa.eu/?page=download&tid=','/description/');
+      var nyaaURL = nyaaLink.attr("href").replace('http://www.nyaa.se/?page=download&tid=','/description/');
       var title = nyaaLink.text();
 
       //$this.parent().append("<div class='description center'><a target='_blank' href='" + nyaaURL + "'>" + title + "</a></div>");

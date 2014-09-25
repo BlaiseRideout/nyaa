@@ -1,144 +1,139 @@
-#	Sample main.py Tornado file
-# 
-#	Author: Mike Dory
-#		11.12.11
-#
-
-#!/usr/bin/env python3
+#!/usr/bin/env python2.7
 import sys
 import os.path
 import os
 import tornado.escape
 import tornado.httpserver
+from tornado.httpclient import AsyncHTTPClient
 import tornado.ioloop
 import tornado.options
 import tornado.web
+from tornado.web import asynchronous
 import tornado.template
 import unicodedata
 import urllib
 import re
 from xml.dom.minidom import parseString
 
-# import and define tornado-y things
 from tornado.options import define, options
-define("port", default=5000, help="run on the given port", type=int)
+define("port", default=5000, type=int)
 
-def search(self, q, filter, category):
-	link = "http://www.nyaa.eu/?page=rss"
 
-	if q != None:
-		link += "&term=" + q
-		current_search = q
-	else:
-		current_search = ""
+class Searcher(tornado.web.RequestHandler):
+	current_search = ""
+	current_filter = "0"
+	current_category = "0_0"
 
-	if filter != None:
-		link += "&filter=" + filter
-		current_filter = filter
-	else:
-		current_filter = "0"
+	def search(self, q, filter, category):
+		link = "http://www.nyaa.se/?page=rss"
 
-	if category != None:
-		link += "&cats=" + category
-		current_category = category
-	else:
-		current_category = "0_0"
+		if q != None:
+			link += "&term=" + q
+			self.current_search = q
 
-	linkopen = urllib.urlopen(link)
+		if filter != None:
+			link += "&filter=" + filter
+			self.current_filter = filter
 
-	if linkopen != None:
-		if str(linkopen.headers).find('charset') != -1:
-			charset = re.search("^Content-Type: text/xml; charset=(?P<charset>.*?)\r\n",str(linkopen.headers))
-			if charset != None:
-				charset = charset.group('charset')
-		if charset == None:
-			charset = 'utf-8'
+		if category != None:
+			link += "&cats=" + category
+			self.current_category = category
 
-		xml = parseString(linkopen.read().decode(charset).encode('utf-8')).getElementsByTagName('channel')[0]
+		http_client = AsyncHTTPClient()
+		http_client.fetch(link, self.handle_request)
 
-		page_heading = title = xml.getElementsByTagName('title')[0].firstChild.nodeValue
-
-		content = '<h3>Results:</h3>'
-
+	def handle_request(self, response):
 		results = []
+		if response.error:
+			page_heading = title = "Error: " + response.error
+		else:
+			if str(response.headers).find('charset') != -1:
+				charset = re.search("^Content-Type: text/xml; charset=(?P<charset>.*?)\r\n",str(response.headers))
+				if charset != None:
+					charset = charset.group('charset')
+			if charset == None:
+				charset = 'utf-8'
 
-		for item in xml.getElementsByTagName('item'):
-			ititle = item.getElementsByTagName('title')[0].firstChild.nodeValue
-			if ititle == None:
-				break
+			xml = parseString(response.body.decode(charset).encode('utf-8')).getElementsByTagName('channel')[0]
 
-#			id = re.search("http://www\.nyaa\.eu/\?page=download&tid=(?P<id>\d*)", item.getElementsByTagName('link')[0].firstChild.nodeValue)
-#			if id != None:
-#				id = id.group('id')
-#			else:
-#				break
+			page_heading = title = xml.getElementsByTagName('title')[0].firstChild.nodeValue
 
-			link = item.getElementsByTagName('link')[0].firstChild.nodeValue
-			if link == None:
-				break
+			for item in xml.getElementsByTagName('item'):
+				ititle = item.getElementsByTagName('title')[0].firstChild.nodeValue
+				if ititle == None:
+					break
 
-			description = item.getElementsByTagName('description')[0].firstChild.nodeValue
-			trusted = ""
-			desc = re.search(r'(?P<A> - A\+)? - (?P<trusted>Remake|Trusted)', description)
-			if desc != None:
-				if desc.group('trusted') == "Remake":
-					trusted = "remake"
-				elif desc.group('trusted') == "Trusted":
-					trusted = "trusted"
-					if desc.group('A') != None:
-						trusted = "aplus"
-				description = re.sub(r'( - A\+)? - (Remake|Trusted)', "", description)
+				link = item.getElementsByTagName('link')[0].firstChild.nodeValue
+				if link == None:
+					break
 
-			if description == None:
-				break
+				description = item.getElementsByTagName('description')[0].firstChild.nodeValue
+				trusted = ""
+				desc = re.search(r'(?P<A> - A\+)? - (?P<trusted>Remake|Trusted)', description)
+				if desc != None:
+					if desc.group('trusted') == "Remake":
+						trusted = "remake"
+					elif desc.group('trusted') == "Trusted":
+						trusted = "trusted"
+						if desc.group('A') != None:
+							trusted = "aplus"
+					description = re.sub(r'( - A\+)? - (Remake|Trusted)', "", description)
 
-			result = {"title": ititle,
-			          "link": link,
-			          "description": description,
-			          "trusted":  trusted }
-			results.append(result)
+				if description == None:
+					break
 
-	else:
-		page_heading = title = "Error"
+				result = {"title": ititle,
+				          "link": link,
+				          "description": description,
+				          "trusted":  trusted }
+				results.append(result)
 
-	self.render(
-		"index.html",
-		title = title,
-		page_heading = page_heading,
-		results = results,
-		current_search = current_search,
-		current_filter = current_filter,
-		current_category = current_category
-	)
+		self.render(
+			"index.html",
+			title = title,
+			page_heading = page_heading,
+			results = results,
+			current_search = self.current_search,
+			current_filter = self.current_filter,
+			current_category = self.current_category
+		)
 
-			
 #the main page
-class MainHandler(tornado.web.RequestHandler):
+class MainHandler(Searcher):
+	@asynchronous
 	def get(self):
-		search(self, None, None, None)
+		self.search(None, None, None)
 
 # the search page
-class PlainSearchHandler(tornado.web.RequestHandler):
+class PlainSearchHandler(Searcher):
+	@asynchronous
 	def get(self, q):
-		search(self, q, None, None)
+		self.search(q, None, None)
 
-class SearchHandler(tornado.web.RequestHandler):
+# the advanced search page
+class SearchHandler(Searcher):
+	@asynchronous
 	def get(self, filter, category, q):
-		search(self, q, filter, category)
+		self.search(q, filter, category)
 
 #description for a torrent
 class DescriptionHandler(tornado.web.RequestHandler):
+	@asynchronous
 	def get(self, q):
-		link = "http://www.nyaa.eu/?page=view"
+		link = "http://www.nyaa.se/?page=view"
 
 		if q != None:
 			link += "&tid=" + q
 
-		linkopen = urllib.urlopen(link)
+		http_client = AsyncHTTPClient()
+		http_client.fetch(link, self.handle_request)
 
-		if linkopen != None:
-			if str(linkopen.headers).find('charset') != -1:
-				charset = re.search("^Content-Type: text/xml; charset=(?P<charset>.*?)\r\n",str(linkopen.headers))
+	def handle_request(self, response):
+		if response.error:
+			description = "No description"
+		else:
+			if str(response.headers).find('charset') != -1:
+				charset = re.search("^Content-Type: text/xml; charset=(?P<charset>.*?)\r\n",str(response.headers))
 				if charset != None:
 					charset = charset.group('charset')
 				else:
@@ -146,15 +141,9 @@ class DescriptionHandler(tornado.web.RequestHandler):
 			else:
 				charset = 'utf-8'
 
-			#for e in parseString(linkopen.read().decode(charset).encode('utf-8')).getElementsByTagName('div'):
-			#	if e.attributes['class'] == 'viewdescription':
-			#		description = e.firstChild.nodeValue
+			description = response.body.decode(charset).encode('utf-8')
 
-			description = linkopen.read().decode(charset).encode('utf-8')
-		else:
-			description = "No description"
-
-		self.write(description)
+		self.finish(description)
 
 # application settings and handle mapping info
 class Application(tornado.web.Application):
@@ -172,7 +161,6 @@ class Application(tornado.web.Application):
 		)
 		tornado.web.Application.__init__(self, handlers, **settings)
 
-# RAMMING SPEEEEEEED!
 def main():
 	if len(sys.argv) > 1:
 		try:

@@ -66,6 +66,7 @@ class Searcher(tornado.web.RequestHandler):
 				link = item.getElementsByTagName('link')[0].firstChild.nodeValue
 				if link == None:
 					break
+				link += "&magnet=1"
 
 				description = item.getElementsByTagName('description')[0].firstChild.nodeValue
 				trusted = ""

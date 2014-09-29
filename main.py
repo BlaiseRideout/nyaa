@@ -171,6 +171,7 @@ def main():
 	else:
 		port = 5000
 	tornado.options.parse_command_line()
+	AsyncHTTPClient.configure("tornado.curl_httpclient.CurlAsyncHTTPClient")
 	http_server = tornado.httpserver.HTTPServer(Application())
 	http_server.listen(os.environ.get("PORT", port))
 

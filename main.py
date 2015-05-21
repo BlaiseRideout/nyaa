@@ -68,6 +68,11 @@ class Searcher(tornado.web.RequestHandler):
 					break
 				link += "&magnet=1"
 
+                                try:
+                                    urllib.urlopen(link)
+                                except IOError as e:
+                                    match = re.search(r"'magnet:[^']*'", str(e)).group(0)[1:-1]
+
 				description = item.getElementsByTagName('description')[0].firstChild.nodeValue
 				trusted = ""
 				desc = re.search(r'(?P<A> - A\+)? - (?P<trusted>Remake|Trusted)', description)
@@ -84,7 +89,7 @@ class Searcher(tornado.web.RequestHandler):
 					break
 
 				result = {"title": ititle,
-				          "link": link,
+				          "link": match,
 				          "description": description,
 				          "trusted":  trusted }
 				results.append(result)

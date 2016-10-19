@@ -11,7 +11,7 @@ import tornado.web
 from tornado.web import asynchronous
 import tornado.template
 import unicodedata
-import urllib
+import requests
 import re
 from xml.dom.minidom import parseString
 
@@ -68,10 +68,9 @@ class Searcher(tornado.web.RequestHandler):
 					break
 				link += "&magnet=1"
 
-                                try:
-                                    urllib.urlopen(link)
-                                except IOError as e:
-                                    match = re.search(r"'magnet:[^']*'", str(e)).group(0)[1:-1]
+                                req = requests.get(link, allow_redirects=False)
+                                if req.status_code == 303:
+                                    link = req.headers['location']
 
 				description = item.getElementsByTagName('description')[0].firstChild.nodeValue
 				trusted = ""
@@ -89,7 +88,7 @@ class Searcher(tornado.web.RequestHandler):
 					break
 
 				result = {"title": ititle,
-				          "link": match,
+				          "link": link,
 				          "description": description,
 				          "trusted":  trusted }
 				results.append(result)

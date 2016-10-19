@@ -1,6 +1,4 @@
-var nyaaURL;
-google.load("jquery", "1.6.4");
-google.setOnLoadCallback(function() {
+$(function() {
 	$("#searchf").submit(function (event) {
 		event.preventDefault();
 
@@ -21,11 +19,10 @@ google.setOnLoadCallback(function() {
       $this.text("▲");
 
       var nyaaLink = $this.parent().find("a");
-      var nyaaURL = nyaaLink.attr("href").replace('http://www.nyaa.se/?page=download&tid=','/description/');
+			var nyaaURL = "/description/" + getParameterByName("tid", nyaaLink.attr("href"));
       var title = nyaaLink.text();
 
-      //$this.parent().append("<div class='description center'><a target='_blank' href='" + nyaaURL + "'>" + title + "</a></div>");
-      $this.parent().append("<div style='display: none;' class='description center'></div>").slideDown("slow");
+      $this.parent().append("<div style='display: none;' class='description center'></div>").slideDown();
       $this.parent().find(".description").load(nyaaURL +  " .viewdescription", function(response, status, xhr) {
         if (status == "error") {
           $this.parent().find(".description").text(xhr.status + " " + xhr.statusText);
@@ -34,4 +31,13 @@ google.setOnLoadCallback(function() {
       });
     }
   });
+	function getParameterByName(name, url) {
+			if (!url) url = window.location.href;
+			name = name.replace(/[\[\]]/g, "\\$&");
+			var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+					results = regex.exec(url);
+			if (!results) return null;
+			if (!results[2]) return '';
+			return decodeURIComponent(results[2].replace(/\+/g, " "));
+	}
 });
